@@ -1,0 +1,128 @@
+---
+name: "ecsoya-network"
+x-type: "hlfv1"
+version: "1.0.0"
+client:
+  organization: "ecsoya"
+  cryptoconfig:
+    path: "/fabric/keyfiles"
+  connection:
+    timeout:
+      peer:
+        endorser: 300
+        eventHub: 300
+        eventReg: 300
+      orderer: 300
+channels:
+  firstchannel:
+    orderers:
+      - orderer0-ecsoya
+    peers:
+      peer0-org0:
+        endorsingPeer: true
+        chaincodeQuery: true
+        eventSource: true
+      peer1-org0:
+        endorsingPeer: true
+        chaincodeQuery: true
+        eventSource: true
+      peer0-org1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        eventSource: true
+      peer1-org1:
+        endorsingPeer: true
+        chaincodeQuery: true
+        eventSource: true
+organizations:
+  ecsoya:
+    mspid: "ecsoya"
+    cryptoPath: "ecsoya/users/{username}@ecsoya/msp"
+    peers:
+    certificateAuthorities:
+      - ca1-ecsoya
+  org0:
+    mspid: "org0"
+    cryptoPath: "org0/users/{username}@org0/msp"
+    peers:
+      - peer0-org0
+      - peer1-org0
+    certificateAuthorities:
+  org1:
+    mspid: "org1"
+    cryptoPath: "org1/users/{username}@org1/msp"
+    peers:
+      - peer0-org1
+      - peer1-org1
+    certificateAuthorities:
+orderers:
+  orderer0-ecsoya:
+    url: "orderer0-ecsoya:7050"
+    grpcOptions:
+      ssl-target-name-override: "orderer0-ecsoya"
+    tlsCACerts:
+      path: "/fabric/keyfiles/ecsoya/orderers/orderer0-ecsoya.ecsoya/tls/ca.crt"
+peers:
+  peer0-org0:
+    url: "peer0-org0:7051"
+    eventUrl: "peer0-org0:7053"
+    grpcOptions:
+      ssl-target-name-override: "peer0-org0"
+    tlsCACerts:
+      path: "/fabric/keyfiles/org0/tlsca/tlsca.org0-cert.pem"
+  peer1-org0:
+    url: "peer1-org0:7051"
+    eventUrl: "peer1-org0:7053"
+    grpcOptions:
+      ssl-target-name-override: "peer1-org0"
+    tlsCACerts:
+      path: "/fabric/keyfiles/org0/tlsca/tlsca.org0-cert.pem"
+  peer0-org1:
+    url: "peer0-org1:7051"
+    eventUrl: "peer0-org1:7053"
+    grpcOptions:
+      ssl-target-name-override: "peer0-org1"
+    tlsCACerts:
+      path: "/fabric/keyfiles/org1/tlsca/tlsca.org1-cert.pem"
+  peer1-org1:
+    url: "peer1-org1:7051"
+    eventUrl: "peer1-org1:7053"
+    grpcOptions:
+      ssl-target-name-override: "peer1-org1"
+    tlsCACerts:
+      path: "/fabric/keyfiles/org1/tlsca/tlsca.org1-cert.pem"
+certificateAuthorities:
+  ca1-ecsoya:
+    url: "https://[public ip]:31568"
+    caName: "ca1-ecsoya"
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: "/fabric/keyfiles/ecsoya/tlsca/tlsca.ecsoya-cert.pem"
+entityMatchers:
+  orderer:
+  - mappedHost: orderer0-ecsoya
+    pattern: (\w*)orderer0-ecsoya(\w*)
+    sslTargetOverrideUrlSubstitutionExp: orderer0-ecsoya
+    urlSubstitutionExp: "[public ip]:31948"
+  peer:
+  - mappedHost: peer0-org0
+    pattern: (\w*)peer0-org0(\w*)
+    sslTargetOverrideUrlSubstitutionExp: peer0-org0
+    urlSubstitutionExp: "[public ip]:31045"
+    eventUrlSubstitutionExp: "[public ip]:31117"
+  - mappedHost: peer1-org0
+    pattern: (\w*)peer1-org0(\w*)
+    sslTargetOverrideUrlSubstitutionExp: peer1-org0
+    urlSubstitutionExp: "[public ip]:30170"
+    eventUrlSubstitutionExp: "[public ip]:30997"
+  - mappedHost: peer0-org1
+    pattern: (\w*)peer0-org1(\w*)
+    sslTargetOverrideUrlSubstitutionExp: peer0-org1
+    urlSubstitutionExp: "[public ip]:31794"
+    eventUrlSubstitutionExp: "[public ip]:32387"
+  - mappedHost: peer1-org1
+    pattern: (\w*)peer1-org1(\w*)
+    sslTargetOverrideUrlSubstitutionExp: peer1-org1
+    urlSubstitutionExp: "[public ip]:32659"
+    eventUrlSubstitutionExp: "[public ip]:32593"
