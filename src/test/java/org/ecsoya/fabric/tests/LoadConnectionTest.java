@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Properties;
 
-import org.ecsoya.fabric.network.FabricConnection;
+import org.ecsoya.fabric.network.FabricNetwork;
 import org.hyperledger.fabric.sdk.exception.InvalidArgumentException;
 import org.hyperledger.fabric.sdk.exception.NetworkConfigurationException;
 
@@ -15,7 +15,7 @@ public class LoadConnectionTest {
 		File configFile = new File("src/test/resources/connection/connection.yml");
 
 		try {
-			FabricConnection fconn = FabricConnection.fromYamlFile(configFile);
+			FabricNetwork fconn = FabricNetwork.fromYamlFile(configFile);
 
 			Collection<String> peerNames = fconn.getPeerNames();
 			for (String name : peerNames) {

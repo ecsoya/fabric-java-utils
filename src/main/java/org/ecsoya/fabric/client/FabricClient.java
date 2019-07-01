@@ -18,14 +18,16 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.ecsoya.fabric.network.FabricCAInfo;
-import org.ecsoya.fabric.network.FabricConnection;
+import org.ecsoya.fabric.network.FabricNetwork;
 import org.ecsoya.fabric.network.FabricOrgInfo;
 import org.ecsoya.fabric.network.FabricUserInfo;
 import org.ecsoya.fabric.user.UserContext;
@@ -58,17 +60,33 @@ public class FabricClient {
 	private static final String EXPECTED_EVENT_NAME = "event";
 	private static final long DEFAULT_PROPOSAL_WAIT_TIME = 1000;
 	private final HFClient instance;
-	private FabricConnection network;
+	private FabricNetwork network;
 
 	private CAClient defaultCAClient;
 
-	public FabricClient(FabricConnection network) throws Exception {
-		this.instance = createInstance();
+	private ChannelClient channelClient;
+
+	public FabricClient(FabricNetwork network) throws Exception {
+		this(network, createClientInstance());
+	}
+
+	public FabricClient(FabricNetwork network, HFClient core) throws Exception {
+		this.instance = core;
 		this.network = network;
 		initialize();
 	}
 
-	public void switchNetwork(FabricConnection network) throws Exception {
+	private static HFClient createClientInstance()
+			throws IllegalAccessException, InstantiationException, ClassNotFoundException, CryptoException,
+			InvalidArgumentException, NoSuchMethodException, InvocationTargetException {
+		CryptoSuite cryptoSuite = CryptoSuite.Factory.getCryptoSuite();
+		// setup the client
+		HFClient instance = HFClient.createNewInstance();
+		instance.setCryptoSuite(cryptoSuite);
+		return instance;
+	}
+
+	public void switchNetwork(FabricNetwork network) throws Exception {
 		this.network = network;
 		this.defaultCAClient = null;
 		initialize();
@@ -92,6 +110,36 @@ public class FabricClient {
 		}
 	}
 
+	public void setupChannelClient(String channelName)
+			throws NetworkConfigurationException, InvalidArgumentException, TransactionException {
+		channelClient = loadChannelClient(channelName);
+	}
+
+	public void setChannelClient(ChannelClient channelClient) {
+		this.channelClient = channelClient;
+	}
+
+	public ChannelClient getChannelClient() {
+		return channelClient;
+	}
+
+	public List<String> getPeerNames() {
+		if (network == null || network.getClientOrganization() == null) {
+			return Collections.emptyList();
+		}
+		return network.getClientOrganization().getPeerNames();
+	}
+
+	public List<Peer> getPeers() {
+		if (channelClient == null) {
+			return Collections.emptyList();
+		}
+		List<String> peerNames = getPeerNames();
+		return channelClient.getChannel().getPeers().stream().filter(peer -> {
+			return peerNames.contains(peer.getName());
+		}).collect(Collectors.toList());
+	}
+
 	public void setUserContext(User userContext) throws InvalidArgumentException {
 		getInstance().setUserContext(userContext);
 	}
@@ -111,16 +159,6 @@ public class FabricClient {
 		}
 		setUserContext(userContext);
 
-	}
-
-	private static HFClient createInstance()
-			throws IllegalAccessException, InstantiationException, ClassNotFoundException, CryptoException,
-			InvalidArgumentException, NoSuchMethodException, InvocationTargetException {
-		CryptoSuite cryptoSuite = CryptoSuite.Factory.getCryptoSuite();
-		// setup the client
-		HFClient client = HFClient.createNewInstance();
-		client.setCryptoSuite(cryptoSuite);
-		return client;
 	}
 
 	/**

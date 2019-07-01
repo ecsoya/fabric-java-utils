@@ -74,7 +74,7 @@ import org.yaml.snakeyaml.Yaml;
  * Resolving entityMatcher to correct URLs.
  */
 @SuppressWarnings("unchecked")
-public class FabricConnection {
+public class FabricNetwork {
 
 	private final JsonObject jsonConfig;
 
@@ -240,9 +240,9 @@ public class FabricConnection {
 
 	private Map<String, EntityMatcher> entityMatchers;
 
-	private static final Log logger = LogFactory.getLog(FabricConnection.class);
+	private static final Log logger = LogFactory.getLog(FabricNetwork.class);
 
-	private FabricConnection(JsonObject jsonConfig) throws InvalidArgumentException, NetworkConfigurationException {
+	private FabricNetwork(JsonObject jsonConfig) throws InvalidArgumentException, NetworkConfigurationException {
 
 		this.jsonConfig = jsonConfig;
 
@@ -321,7 +321,7 @@ public class FabricConnection {
 	 * @return
 	 * @throws Exception
 	 */
-	public static FabricConnection build(File networkRoot, String keyfilesPath, String org) throws Exception {
+	public static FabricNetwork build(File networkRoot, String keyfilesPath, String org) throws Exception {
 		if (networkRoot == null || !networkRoot.exists()) {
 			throw new Exception("Network root directory is not exist");
 		}
@@ -329,7 +329,7 @@ public class FabricConnection {
 			throw new Exception("Orgnization name should not be empty.");
 		}
 		File configFileParent = new File(networkRoot, keyfilesPath);
-		FabricConnection network = null;
+		FabricNetwork network = null;
 
 		File cfgYaml = new File(configFileParent, org + File.separator + "connection.yml");
 		if (cfgYaml.exists()) {
@@ -357,7 +357,7 @@ public class FabricConnection {
 	 * @throws InvalidArgumentException
 	 * @throws IOException
 	 */
-	public static FabricConnection fromYamlFile(File configFile)
+	public static FabricNetwork fromYamlFile(File configFile)
 			throws InvalidArgumentException, IOException, NetworkConfigurationException {
 		return fromFile(configFile, false);
 	}
@@ -371,7 +371,7 @@ public class FabricConnection {
 	 * @throws InvalidArgumentException
 	 * @throws IOException
 	 */
-	public static FabricConnection fromJsonFile(File configFile)
+	public static FabricNetwork fromJsonFile(File configFile)
 			throws InvalidArgumentException, IOException, NetworkConfigurationException {
 		return fromFile(configFile, true);
 	}
@@ -385,7 +385,7 @@ public class FabricConnection {
 	 * @return A new NetworkConfig instance
 	 * @throws InvalidArgumentException
 	 */
-	public static FabricConnection fromYamlStream(InputStream configStream)
+	public static FabricNetwork fromYamlStream(InputStream configStream)
 			throws InvalidArgumentException, NetworkConfigurationException {
 
 		logger.trace("NetworkConfig.fromYamlStream...");
@@ -414,7 +414,7 @@ public class FabricConnection {
 	 * @return A new NetworkConfig instance
 	 * @throws InvalidArgumentException
 	 */
-	public static FabricConnection fromJsonStream(InputStream configStream)
+	public static FabricNetwork fromJsonStream(InputStream configStream)
 			throws InvalidArgumentException, NetworkConfigurationException {
 
 		logger.trace("NetworkConfig.fromJsonStream...");
@@ -441,7 +441,7 @@ public class FabricConnection {
 	 * @return A new NetworkConfig instance
 	 * @throws InvalidArgumentException
 	 */
-	public static FabricConnection fromJsonObject(JsonObject jsonConfig)
+	public static FabricNetwork fromJsonObject(JsonObject jsonConfig)
 			throws InvalidArgumentException, NetworkConfigurationException {
 
 		// Sanity check
@@ -453,11 +453,11 @@ public class FabricConnection {
 			logger.trace(format("NetworkConfig.fromJsonObject: %s", jsonConfig.toString()));
 		}
 
-		return FabricConnection.load(jsonConfig);
+		return FabricNetwork.load(jsonConfig);
 	}
 
 	// Loads a NetworkConfig object from a Json or Yaml file
-	private static FabricConnection fromFile(File configFile, boolean isJson)
+	private static FabricNetwork fromFile(File configFile, boolean isJson)
 			throws InvalidArgumentException, IOException, NetworkConfigurationException {
 
 		// Sanity check
@@ -469,7 +469,7 @@ public class FabricConnection {
 			logger.trace(format("NetworkConfig.fromFile: %s  isJson = %b", configFile.getAbsolutePath(), isJson));
 		}
 
-		FabricConnection config;
+		FabricNetwork config;
 
 		// Json file
 		try (InputStream stream = new FileInputStream(configFile)) {
@@ -487,7 +487,7 @@ public class FabricConnection {
 	 * @return A populated NetworkConfig instance
 	 * @throws InvalidArgumentException
 	 */
-	private static FabricConnection load(JsonObject jsonConfig)
+	private static FabricNetwork load(JsonObject jsonConfig)
 			throws InvalidArgumentException, NetworkConfigurationException {
 
 		// Sanity check
@@ -495,7 +495,7 @@ public class FabricConnection {
 			throw new InvalidArgumentException("config must be specified");
 		}
 
-		return new FabricConnection(jsonConfig);
+		return new FabricNetwork(jsonConfig);
 	}
 
 	public FabricOrgInfo getClientOrganization() {
