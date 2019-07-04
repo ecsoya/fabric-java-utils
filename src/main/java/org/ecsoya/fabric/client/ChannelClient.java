@@ -324,4 +324,10 @@ public class ChannelClient {
 		return responses;
 	}
 
+	public void shutdown(boolean force) {
+		if (channel != null) {
+			channel.shutdown(force);
+		}
+	}
+
 }
