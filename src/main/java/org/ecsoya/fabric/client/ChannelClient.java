@@ -238,6 +238,26 @@ public class ChannelClient {
 		return null;
 	}
 
+	public Collection<ProposalResponse> queryByChaincode(QueryByChaincodeRequest request)
+			throws ProposalException, InvalidArgumentException {
+		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,
+				"Sending transaction proposal on channel " + channel.getName());
+
+		Collection<ProposalResponse> response = channel.queryByChaincode(request, channel.getPeers());
+		for (ProposalResponse pres : response) {
+			String stringResponse = new String(pres.getChaincodeActionResponsePayload());
+			Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,
+					"Transaction proposal on channel " + channel.getName() + " " + pres.getMessage() + " "
+							+ pres.getStatus() + " with transaction id:" + pres.getTransactionID());
+			Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO, stringResponse);
+		}
+
+		CompletableFuture<TransactionEvent> cf = channel.sendTransaction(response);
+		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO, cf.toString());
+
+		return response;
+	}
+
 	/**
 	 * Send transaction proposal.
 	 * 

@@ -1,0 +1,158 @@
+name: cellshop-fabric
+version: 1.0.0
+x-type: hlfv1
+client:
+   logging:
+      level: debug
+   connection:
+      timeout:
+         peer:
+            endorser: 300
+            eventHub: 300
+            eventReg: 300
+         orderer: 300
+   organization: ptk
+channels:
+   common:
+      orderers:
+      - orderer0
+      peers:
+         peer0-ptk:
+            endorsingPeer: true
+            chaincodeQuery: true
+            eventSource: true
+         peer0-pro:
+            endorsingPeer: true
+            chaincodeQuery: true
+            eventSource: true
+         peer0-thd:
+            endorsingPeer: true
+            chaincodeQuery: true
+            eventSource: true
+         peer1-ptk:
+            endorsingPeer: true
+            chaincodeQuery: true
+            eventSource: true
+         peer1-pro:
+            endorsingPeer: true
+            chaincodeQuery: true
+            eventSource: true
+         peer1-thd:
+            endorsingPeer: true
+            chaincodeQuery: true
+            eventSource: true
+      policies: {}
+organizations:
+   org-orderer:
+      mspid: org-ordererMSP
+      certificateAuthorities: ca.org-orderer
+      adminPrivateKey:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/org-orderer/users/Admin@org-orderer/msp/keystore/bab48b129865de68b301921626b202eee2a859464f413370220c7447723bd237_sk
+      signedCert:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/org-orderer/users/Admin@org-orderer/msp/admincerts/Admin@org-orderer-cert.pem
+   ptk:
+      mspid: ptkMSP
+      certificateAuthorities: ca.ptk
+      adminPrivateKey:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/ptk/users/Admin@ptk/msp/keystore/f8d47a70246989d3c4b3d0be211ec667ef52b0af47b4a7dc060fc43dc98905a7_sk
+      signedCert:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/ptk/users/Admin@ptk/msp/admincerts/Admin@ptk-cert.pem
+      peers:
+      - ptk-peer0
+      - ptk-peer1
+   pro:
+      mspid: proMSP
+      certificateAuthorities: ca.pro
+      adminPrivateKey:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/pro/users/Admin@pro/msp/keystore/9d610c38da5af58610f024a15d9af41d7e71f4bcdb68df6d33fcbea9f67d9883_sk
+      signedCert:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/pro/users/Admin@pro/msp/admincerts/Admin@pro-cert.pem
+      peers:
+      - pro-peer0
+      - pro-peer1
+   thd:
+      mspid: thdMSP
+      certificateAuthorities: ca.thd
+      adminPrivateKey:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/thd/users/Admin@thd/msp/keystore/38fbb0ddf8829d923e01bd20a045ebc30421a85ac15f4cb5e504ff85005e77c4_sk
+      signedCert:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/thd/users/Admin@thd/msp/admincerts/Admin@thd-cert.pem
+      peers:
+      - thd-peer0
+      - thd-peer1
+orderers:
+   orderer0:
+      url: grpcs:orderer0.7fb4e433-bbde-91be-bb38-4c404122c934:7050
+      grpcOptions:
+         ssl-target-name-override: orderer0.7fb4e433-bbde-91be-bb38-4c404122c934
+         allow-insecure: 0
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/org-orderer/users/Admin@org-orderer/msp/admincerts/Admin@org-orderer-cert.pem
+peers:
+   ptk-peer0:
+      url: grpcs:ptk-peer0.7fb4e433-bbde-91be-bb38-4c404122c934:7051
+      grpcOptions:
+         ssl-target-name-override: ptk-peer0.7fb4e433-bbde-91be-bb38-4c404122c934
+         allow-insecure: 0
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/ptk/users/Admin@ptk/msp/admincerts/Admin@ptk-cert.pem
+   pro-peer0:
+      url: grpcs:pro-peer0.7fb4e433-bbde-91be-bb38-4c404122c934:7051
+      grpcOptions:
+         ssl-target-name-override: pro-peer0.7fb4e433-bbde-91be-bb38-4c404122c934
+         allow-insecure: 0
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/pro/users/Admin@pro/msp/admincerts/Admin@pro-cert.pem
+   thd-peer0:
+      url: grpcs:thd-peer0.7fb4e433-bbde-91be-bb38-4c404122c934:7051
+      grpcOptions:
+         ssl-target-name-override: thd-peer0.7fb4e433-bbde-91be-bb38-4c404122c934
+         allow-insecure: 0
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/thd/users/Admin@thd/msp/admincerts/Admin@thd-cert.pem
+   ptk-peer1:
+      url: grpcs:ptk-peer1.7fb4e433-bbde-91be-bb38-4c404122c934:7051
+      grpcOptions:
+         ssl-target-name-override: ptk-peer1.7fb4e433-bbde-91be-bb38-4c404122c934
+         allow-insecure: 0
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/ptk/users/Admin@ptk/msp/admincerts/Admin@ptk-cert.pem
+   pro-peer1:
+      url: grpcs:pro-peer1.7fb4e433-bbde-91be-bb38-4c404122c934:7051
+      grpcOptions:
+         ssl-target-name-override: pro-peer1.7fb4e433-bbde-91be-bb38-4c404122c934
+         allow-insecure: 0
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/pro/users/Admin@pro/msp/admincerts/Admin@pro-cert.pem
+   thd-peer1:
+      url: grpcs:thd-peer1.7fb4e433-bbde-91be-bb38-4c404122c934:7051
+      grpcOptions:
+         ssl-target-name-override: thd-peer1.7fb4e433-bbde-91be-bb38-4c404122c934
+         allow-insecure: 0
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/thd/users/Admin@thd/msp/admincerts/Admin@thd-cert.pem
+certificateAuthorities:
+   ca.org-orderer:
+      url: 'http:org-orderer-rootca.7fb4e433-bbde-91be-bb38-4c404122c934:'
+      httpOptions:
+         verify: false
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/org-orderer/users/Admin@org-orderer/msp/admincerts/Admin@org-orderer-cert.pem
+   ca.ptk:
+      url: 'http:ptk-rootca.7fb4e433-bbde-91be-bb38-4c404122c934:'
+      httpOptions:
+         verify: false
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/ptk/users/Admin@ptk/msp/admincerts/Admin@ptk-cert.pem
+   ca.pro:
+      url: 'http:pro-rootca.7fb4e433-bbde-91be-bb38-4c404122c934:'
+      httpOptions:
+         verify: false
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/pro/users/Admin@pro/msp/admincerts/Admin@pro-cert.pem
+   ca.thd:
+      url: 'http:thd-rootca.7fb4e433-bbde-91be-bb38-4c404122c934:'
+      httpOptions:
+         verify: false
+      tlsCACerts:
+         path: src/main/resources/artifacts/fabric/bbe/orgs/thd/users/Admin@thd/msp/admincerts/Admin@thd-cert.pem

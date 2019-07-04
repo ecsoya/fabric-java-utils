@@ -40,6 +40,7 @@ import org.hyperledger.fabric.sdk.InstallProposalRequest;
 import org.hyperledger.fabric.sdk.Orderer;
 import org.hyperledger.fabric.sdk.Peer;
 import org.hyperledger.fabric.sdk.ProposalResponse;
+import org.hyperledger.fabric.sdk.QueryByChaincodeRequest;
 import org.hyperledger.fabric.sdk.TransactionProposalRequest;
 import org.hyperledger.fabric.sdk.TransactionRequest.Type;
 import org.hyperledger.fabric.sdk.User;
@@ -74,6 +75,10 @@ public class FabricClient {
 		this.instance = core;
 		this.network = network;
 		initialize();
+	}
+
+	public FabricNetwork getNetwork() {
+		return network;
 	}
 
 	private static HFClient createClientInstance()
@@ -112,7 +117,12 @@ public class FabricClient {
 
 	public void setupChannelClient(String channelName)
 			throws NetworkConfigurationException, InvalidArgumentException, TransactionException {
-		channelClient = loadChannelClient(channelName);
+		if (channelClient != null && channelName != null && channelName.equals(channelClient.getName())) {
+			return;
+		}
+		if (channelName != null && network != null) {
+			channelClient = loadChannelClient(channelName);
+		}
 	}
 
 	public void setChannelClient(ChannelClient channelClient) {
@@ -190,17 +200,68 @@ public class FabricClient {
 
 	public ChannelClient loadChannelClient(String name)
 			throws NetworkConfigurationException, InvalidArgumentException, TransactionException {
-		if (name != null && network != null) {
-			Channel channel = network.loadChannel(instance, name);
-			channel.initialize();
-			return new ChannelClient(name, channel, this);
+		if (name == null) {
+			return null;
 		}
-		return null;
+		ChannelClient channelClient = null;
+		Channel channel = instance.getChannel(name);
+		if (channel != null) {
+			channelClient = new ChannelClient(name, channel, this);
+		}
+		if (channelClient == null && network != null) {
+			channel = network.loadChannel(instance, name);
+			channel.initialize();
+			channelClient = new ChannelClient(name, channel, this);
+		}
+		setChannelClient(channelClient);
+		return channelClient;
 	}
 
 	public ChannelClient createChannelClient(String name) throws InvalidArgumentException {
 		Channel channel = instance.newChannel(name);
 		return new ChannelClient(name, channel, this);
+	}
+
+	public ChannelClient createChannelClient(String channelName, String[] peers, String... orderers)
+			throws InvalidArgumentException, TransactionException {
+		Channel channel = instance.getChannel(channelName);
+
+		if (channel != null) {
+			for (Peer peer : channel.getPeers()) {
+				channel.removePeer(peer);
+			}
+			for (Orderer orderer : channel.getOrderers()) {
+				channel.removeOrderer(orderer);
+			}
+		} else {
+			channel = instance.newChannel(channelName);
+		}
+
+		if (network != null) {
+			if (peers != null) {
+				for (String peerName : peers) {
+					Peer peer = network.getPeer(instance, peerName);
+					if (peer != null) {
+						channel.addPeer(peer);
+					}
+					EventHub eventHub = network.getEventHub(instance, peerName);
+					if (eventHub != null) {
+						channel.addEventHub(eventHub);
+					}
+				}
+			}
+			if (orderers != null) {
+				for (String ordererName : orderers) {
+					Orderer orderer = network.getOrderer(instance, ordererName);
+					if (orderer != null) {
+						channel.addOrderer(orderer);
+					}
+				}
+			}
+			channel.initialize();
+		}
+
+		return new ChannelClient(channelName, channel, this);
 	}
 
 	public Peer loadPeer(String name) throws InvalidArgumentException {
@@ -228,6 +289,7 @@ public class FabricClient {
 			throws InvalidArgumentException {
 		TransactionProposalRequest request = instance.newTransactionProposalRequest();
 		ChaincodeID ccid = ChaincodeID.newBuilder().setName(chaincode).build();
+
 		request.setChaincodeID(ccid);
 		request.setFcn(function);
 		request.setArgs(args);
@@ -240,6 +302,24 @@ public class FabricClient {
 		tm2.put(EXPECTED_EVENT_NAME, EXPECTED_EVENT_DATA);
 		request.setTransientMap(tm2);
 		return request;
+	}
+
+	public QueryByChaincodeRequest newQueryByChangcodeRequest(String chaincode, String function, String... args)
+			throws InvalidArgumentException {
+		QueryByChaincodeRequest queryRequest = instance.newQueryProposalRequest();
+		ChaincodeID ccid = ChaincodeID.newBuilder().setName(chaincode).build();
+		queryRequest.setChaincodeID(ccid); // ChaincodeId object as created in Invoke block
+		queryRequest.setFcn(function); // Chaincode function name for querying the blocks
+
+		if (args != null) {
+			queryRequest.setArgs(args);
+		}
+		Map<String, byte[]> tm2 = new HashMap<>();
+		tm2.put("HyperLedgerFabric", "QueryByChaincodeRequest:JavaSDK".getBytes(UTF_8));
+		tm2.put("method", "QueryByChaincodeRequest".getBytes(UTF_8));
+		tm2.put("result", ":)".getBytes(UTF_8));
+		tm2.put(EXPECTED_EVENT_NAME, EXPECTED_EVENT_DATA);
+		return queryRequest;
 	}
 
 	/**
