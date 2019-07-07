@@ -59,7 +59,7 @@ import org.hyperledger.fabric.sdk.security.CryptoSuite;
 public class FabricClient {
 	private static final byte[] EXPECTED_EVENT_DATA = "!".getBytes(UTF_8);
 	private static final String EXPECTED_EVENT_NAME = "event";
-	private static final long DEFAULT_PROPOSAL_WAIT_TIME = 1000;
+	private static final long DEFAULT_PROPOSAL_WAIT_TIME = 3000;
 	private final HFClient instance;
 	private FabricNetwork network;
 
@@ -227,16 +227,9 @@ public class FabricClient {
 		Channel channel = instance.getChannel(channelName);
 
 		if (channel != null) {
-			for (Peer peer : channel.getPeers()) {
-				channel.removePeer(peer);
-			}
-			for (Orderer orderer : channel.getOrderers()) {
-				channel.removeOrderer(orderer);
-			}
-		} else {
-			channel = instance.newChannel(channelName);
+			channel.shutdown(true);
 		}
-
+		channel = instance.newChannel(channelName);
 		if (network != null) {
 			if (peers != null) {
 				for (String peerName : peers) {
