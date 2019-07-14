@@ -229,6 +229,7 @@ public class FabricClient {
 		if (channel != null) {
 			channel.shutdown(true);
 		}
+
 		channel = instance.newChannel(channelName);
 		if (network != null) {
 			if (peers != null) {
@@ -251,7 +252,9 @@ public class FabricClient {
 					}
 				}
 			}
-			channel.initialize();
+			if (!channel.isShutdown() && !channel.isInitialized()) {
+				channel.initialize();
+			}
 		}
 
 		return new ChannelClient(channelName, channel, this);

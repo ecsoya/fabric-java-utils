@@ -9,6 +9,8 @@ public class Version {
 	private int major;
 	private int minor;
 
+	private boolean joined = false;
+
 	public Version(String version) throws Exception {
 		MajorMinor mm = parseVersion(version);
 		this.major = mm.major;
@@ -22,10 +24,14 @@ public class Version {
 		}
 		this.major = Math.max(major, nm.major);
 		this.minor = Math.max(minor, nm.minor);
+		this.joined = true;
 	}
 
 	public String nextVersion() {
-		return major + "." + (minor + 1);
+		if (joined) {
+			return major + "." + (minor + 1);
+		}
+		return major + "." + minor;
 	}
 
 	private static MajorMinor parseVersion(String version) throws Exception {
