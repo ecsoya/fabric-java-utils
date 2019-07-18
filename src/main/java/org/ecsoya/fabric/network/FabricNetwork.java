@@ -829,6 +829,39 @@ public class FabricNetwork {
 		return channel;
 	}
 
+	public PeerOptions getPeerOptions(String channel, String peerName) {
+		JsonObject channels = getJsonObject(jsonConfig, "channels");
+		if (channels == null) {
+			return null;
+		}
+		JsonObject jsonChannel = getJsonObject(channels, channel);
+		if (jsonChannel == null) {
+			return null;
+		}
+		JsonObject jsonPeers = getJsonObject(jsonChannel, "peers");
+		if (jsonPeers == null) {
+			return null;
+		}
+		JsonObject jsonPeer = getJsonObject(jsonPeers, peerName);
+		if (jsonPeer == null) {
+			return null;
+		}
+		PeerOptions peerOptions = PeerOptions.createPeerOptions();
+
+		for (PeerRole role : PeerRole.values()) {
+			String propName = roleNameRemap(role);
+			JsonValue val = jsonPeer.get(propName);
+			Boolean isSet = getJsonValueAsBoolean(val);
+			if (isSet == null) {
+				continue;
+			}
+			if (isSet) {
+				peerOptions.addPeerRole(role);
+			}
+		}
+		return peerOptions;
+	}
+
 	private boolean haveNoPeerRoles(PeerOptions peerOptions) {
 		if (peerOptions == null) {
 			return false;
