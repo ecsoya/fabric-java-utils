@@ -16,6 +16,7 @@
 			<artifactId>fabric-sdk-java</artifactId>
 			<version>${fabric-sdk-java.version}</version>
 		</dependency>
+		
 	</dependencies>
 	<build>
 		<plugins>
